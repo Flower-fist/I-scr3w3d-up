@@ -1,0 +1,63 @@
+#lang racket 
+(define dumb (lambda (n)
+               (add1 (* 2 n))
+               ))
+
+(define fibo (lambda (n)
+               (if
+                (equal? n 1)
+                1
+                (+ (fibo (- n 1))(fibo (- n 2)))
+                )
+               ))
+
+(define series-acc (lambda(proc acc n)
+                 (cond
+                 [(equal? acc n) (writeln (number->string (proc acc)))]
+                 [else
+                 (begin
+                 (writeln (number->string (proc acc)))(series-acc proc (add1 acc) n))
+                 ]
+                 )))
+
+(define series (lambda (proc n)
+                  (series-acc proc 1 n)
+                  ))
+(define mode "none")
+(define interface (lambda ()
+                    (writeln ">:")
+                    (let ((input (read)))
+                      
+                      (if (not (equal? input 'quit))
+                      (begin
+                      (if         (equal? mode "none")
+                               (cond
+                                 [(equal? input 'Fibo)(set! mode "fibo")]
+                                 [(equal? input 'Fibonacci)(set! mode "fibo")]
+                                 [(equal? input 'F)(set! mode "fibo")]
+                                 [(equal? input 'Odds)(set! mode "odds")]
+                                 [(equal? input "Odd numbers")(set! mode "odds")]
+                                 [(equal? input 'O)(set! mode "odds")]
+                                 [(equal? input 'help)(writeln
+                                                        "
+This program be can set to different calculation modes using simple commands,                                    
+the commands Fibo/Fibonacci/F set the mode to calculate fibonacci numbers,                                       
+the commands Odds/Odd numbers/O set the mode to calculate Odd numbers.                                           
+once in these modes select a number for the program to use.")]
+                                 [else (writeln "command not reconnized.")]
+                                 )
+                               (let ((input2 (read)))
+                                 (cond
+                                   [(equal? mode "fibo")(begin (series fibo input2) (set! mode "none"))]
+                                   [(equal? mode "odds")(begin (series dumb input2) (set! mode "none"))]
+                                   [else (writeln "deep error(ie, a fluke),please restart program.")]
+                                   )
+                                 )
+                              )
+                      (interface)
+                      )
+                      (writeln "program terminated.")
+                      )
+                    )))
+(writeln "SERIESCALC program, type 'help' for more information, type quit to exit the program")
+(interface)
