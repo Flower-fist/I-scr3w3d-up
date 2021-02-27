@@ -23,6 +23,11 @@
                  (writeln (number->string (proc acc)))(series-acc proc (add1 acc) n))
                  ]
                  )))
+;;(define safety (lambda(type? func inp)
+;;                 (if ((lambda(inp)type) inp))
+;;                 (func inp)
+;;                 (writln "incorrect input type.")
+;;                 ))
 
 (define series (lambda (proc n)
                   (series-acc proc 1 n)
@@ -34,6 +39,14 @@ the commands Fibo/Fibonacci/F set the mode to calculate fibonacci numbers,
 the commands Odds/Odd numbers/O set the mode to calculate Odd numbers.                                           
 once in these modes select a number for the program to use."
 )
+(define safe (lambda(func inp)
+               (lambda (inp)
+               (if
+                (number? inp)
+                (func inp)
+                (writeln "not a number[NaN]")
+               ))
+               ))
 (define interface (lambda ()
                     (writeln ">:")
                     (let ((input (read)))
@@ -41,7 +54,7 @@ once in these modes select a number for the program to use."
                       (begin
                       (if         (equal? mode "none")
                                (cond
-                                 [(equal? input 'Fibo)(set! mode "fibo")]
+                                 [(equal? input ''Fibonacci)(set! mode "fibo")]
                                  [(equal? input 'Fibonacci)(set! mode "fibo")]
                                  [(equal? input 'F)(set! mode "fibo")]
                                  [(equal? input 'Odds)(set! mode "odds")]
@@ -59,6 +72,35 @@ once in these modes select a number for the program to use."
                       (interface)
                       )
                       (writeln "program terminated.")
+                      )
+                    )))
+(define interface+ (lambda ()
+                    (writeln ">:")
+                    (let ((input (read)))
+                      (cond
+                      [(equal? input 'quit)(writeln "program terminated.")]
+                      [(equal? input'xyzzy)(begin (writeln mode)(set! mode "none")(interface))]
+                      [else
+                      (begin
+                      (if         (equal? mode "none")
+                               (cond
+                                 [(equal? input ''Fibonacci)(set! mode "fibo")]
+                                 [(equal? input 'Fibo)(set! mode "fibo")]
+                                 [(equal? input 'F)(set! mode "fibo")]
+                                 [(equal? input 'Odds)(set! mode "odds")]
+                                 [(equal? input "Odd numbers")(set! mode "odds")]
+                                 [(equal? input 'O)(set! mode "odds")]
+                                 [(equal? input 'help)(writeln help)]
+                                 [else (writeln "command not reconnized.")]
+                                 )
+                                 (cond
+                                   [(equal? mode "fibo")(begin (series (safe fibo input) input) (set! mode "none"))]
+                                   [(equal? mode "odds")(begin (series (safe dumb input) input) (set! mode "none"))]
+                                   [else (writeln "deep error(ie, a fluke),please restart program.")]
+                                   )
+                              )
+                      (interface)
+                      )]
                       )
                     )))
 (writeln "SERIESCALC program, type 'help' for more information, type 'quit' to exit the program")
