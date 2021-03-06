@@ -1,4 +1,10 @@
-#lang racket 
+#lang racket
+#|
+the following code is for the UI to run according to user input,
+(withthe exlusion of safe)
+with safe being an expiriment to protect from user error.
+(safe was not succesfull idea)
+|#
 (define dumb (lambda (n)
                (add1 (* 2 n))
                ))
@@ -23,15 +29,30 @@
                  (writeln (number->string (proc acc)))(series-acc proc (add1 acc) n))
                  ]
                  )))
-;;(define safety (lambda(type? func inp)
-;;                 (if ((lambda(inp)type) inp))
-;;                 (func inp)
-;;                 (writln "incorrect input type.")
-;;                 ))
-
+(define safe (lambda(func inp)
+               (if
+                (number? inp)
+                (func inp)
+                (writeln "not a number[NaN]")
+               )
+               ))
 (define series (lambda (proc n)
                   (series-acc proc 1 n)
                   ))
+(define series+ (lambda (proc n)
+                (if
+                (number? n)
+                (series proc n)
+                (writeln "not a number[NaN]")
+                )
+                  ))
+#|
+the mode variable is how the UI translates
+the input into the code required to be run
+and the help varible is text for the user to view,
+with the "quit" and "xyzzy"
+commands ideally cicrumenting the mode variable
+|#
 (define mode "none")
 (define help"
 This program be can set to different calculation modes using simple commands,                                    
@@ -39,14 +60,7 @@ the commands Fibo/Fibonacci/F set the mode to calculate fibonacci numbers,
 the commands Odds/Odd numbers/O set the mode to calculate Odd numbers.                                           
 once in these modes select a number for the program to use."
 )
-(define safe (lambda(func inp)
-               (lambda (inp)
-               (if
-                (number? inp)
-                (func inp)
-                (writeln "not a number[NaN]")
-               ))
-               ))
+;;this is the old version of the UI, archived for comparision to the current code
 (define interface (lambda ()
                     (writeln ">:")
                     (let ((input (read)))
@@ -74,34 +88,44 @@ once in these modes select a number for the program to use."
                       (writeln "program terminated.")
                       )
                     )))
+
+#|
+I'm planning to modify th UI so it uses aux functions,
+so I can debug it more easily, and add a debug menu,
+and thus gatekeep and troll any one who uses it,
+which will be fun.
+|#
+(define setmode (lambda (input)
+                  (cond
+                    [(equal? input ''Fibonacci)(set! mode "fibo")]
+                    [(equal? input 'Fibo)(set! mode "fibo")]
+                    [(equal? input 'Odds)(set! mode "odds")]
+                    [(equal? input "Odd numbers")(set! mode "odds")]
+                    [(equal? input 'O)(set! mode "odds")]
+                    [(equal? input 'help)(writeln help)]
+                    [else (writeln "command not reconnized.")]
+                  )))
+(define docalc (lambda (input)
+                 (cond
+                   [(equal? mode "fibo")(begin (series+ fibo input) (set! mode "none"))]
+                   [(equal? mode "odds")(begin (series+ dumb input) (set! mode "none"))]
+                   [else (writeln "deep error(ie, a fluke),please restart program.")]
+                 )))
 (define interface+ (lambda ()
                     (writeln ">:")
                     (let ((input (read)))
                       (cond
                       [(equal? input 'quit)(writeln "program terminated.")]
-                      [(equal? input'xyzzy)(begin (writeln mode)(set! mode "none")(interface))]
+                      [(equal? input 'xyzzy)(begin (writeln mode)(writeln "mode reset")(set! mode "none")(interface))]
                       [else
                       (begin
-                      (if         (equal? mode "none")
-                               (cond
-                                 [(equal? input ''Fibonacci)(set! mode "fibo")]
-                                 [(equal? input 'Fibo)(set! mode "fibo")]
-                                 [(equal? input 'F)(set! mode "fibo")]
-                                 [(equal? input 'Odds)(set! mode "odds")]
-                                 [(equal? input "Odd numbers")(set! mode "odds")]
-                                 [(equal? input 'O)(set! mode "odds")]
-                                 [(equal? input 'help)(writeln help)]
-                                 [else (writeln "command not reconnized.")]
-                                 )
-                                 (cond
-                                   [(equal? mode "fibo")(begin (series (safe fibo input) input) (set! mode "none"))]
-                                   [(equal? mode "odds")(begin (series (safe dumb input) input) (set! mode "none"))]
-                                   [else (writeln "deep error(ie, a fluke),please restart program.")]
-                                   )
-                              )
-                      (interface)
-                      )]
+                      (if (equal? mode "none")
+                          (setmode input)
+                          (docalc input)
+                          )
+                      (interface+))
+                      ]
                       )
                     )))
 (writeln "SERIESCALC program, type 'help' for more information, type 'quit' to exit the program")
-(interface)
+(interface+)
