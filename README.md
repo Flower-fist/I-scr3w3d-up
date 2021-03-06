@@ -7,11 +7,13 @@ update log;
 1.0
 titular bug fixed;
 1.1
-basoc interface added;
+basic interface added;
 1.1.2
 command recognition fixed, quit added:
 1.1.3
 "fibo-freezeup" and unprompted input requests fixed;
+1.2
+backdoor command added (took a long arse while)
 # planned updates
 debug menu, enable/disable features,
 and more functions.
