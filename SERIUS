@@ -1,0 +1,124 @@
+#lang racket
+#|
+the following code is for the UI to run according to user input,
+(withthe exlusion of safe)
+with safe being an expiriment to protect from user error.
+(safe was not succesfull idea)
+|#
+(define dumb (lambda (n)
+               (add1 (* 2 n))
+               ))
+
+(define fibo-acc (lambda (acc1 acc2 n)
+                   (if
+                    (equal? n 0)
+                    (+ acc1 acc2)
+                    (fibo-acc acc2 (+ acc1 acc2) (sub1 n))
+                    )
+                   ))
+
+(define fibo (lambda (n)
+                (fibo-acc 0 1 n)
+                ))
+
+(define series-acc (lambda(proc acc n)
+                 (cond
+                 [(equal? acc n) (writeln (number->string (proc acc)))]
+                 [else
+                 (begin
+                 (writeln (number->string (proc acc)))(series-acc proc (add1 acc) n))
+                 ]
+                 )))
+(define series (lambda (proc n)
+                  (series-acc proc 1 n)
+                  ))
+(define series+ (lambda (proc n)
+                (if
+                (number? n)
+                (series proc n)
+                (writeln "not a number[NaN]")
+                )
+                  ))
+#|
+I'm going to update the UI to allow same line inputs,
+in the forms "fibo/x" "odds/x" & "luca/x"
+|#
+(define exec-form (lambda (command proc)
+                    (series proc (string->number (substring (symbol->string command) 5)))
+                  ))
+(define test-form (lambda (command expect)
+                    (equal? (substring (symbol->string command) 0 4) expect)
+                  ))
+#|
+the mode variable is how the UI translates
+the input into the code required to be run
+and the help varible is text for the user to view,
+with the "quit" and "xyzzy"
+commands ideally cicrumenting the mode variable
+|#
+(define mode "none")
+(define last "none")
+(define help"
+This program be can set to different calculation modes using simple commands,                                    
+the commands Fibo/Fibonacci/F set the mode to calculate fibonacci numbers,                                       
+the commands Odds/Odd numbers/O set the mode to calculate Odd numbers.                                           
+once in these modes select a number for the program to use."
+)
+;;this is the old version of the UI, archived for comparision to the current code
+(define interface/0 (lambda ()
+                    (writeln ">:")
+                    (let ((input (read)))
+                      (if (not (equal? input 'quit))
+                      (begin
+                      (if         (equal? mode "none")
+                               (cond
+                                 [(equal? input ''Fibonacci)(set! mode "fibo")]
+                                 [(equal? input 'Fibo)(set! mode "fibo")]
+                                 [(equal? input 'F)(set! mode "fibo")]
+                                 [(equal? input 'Odds)(set! mode "odds")]
+                                 [(equal? input 'O)(set! mode "odds")]
+                                 [(equal? input 'help)(writeln help)]
+                                 [else (writeln "command not reconnized.")]
+                                 )
+                                 (cond
+                                   [(equal? mode "fibo")(begin (series fibo input) (set! mode "none"))]
+                                   [(equal? mode "odds")(begin (series dumb input) (set! mode "none"))]
+                                   [else (writeln "deep error(ie, a fluke),please restart program.")]
+                                   )
+                              )
+                      (interface/0)
+                      )
+                      (begin (writeln "emulator exited.") (interface/0))
+                      )
+                    )))
+
+#|
+I'm planning to modify the UI so it uses aux functions,
+so I can debug it more easily, and add a debug menu,
+and thus gatekeep and troll any one who uses it.
+the UI funtion uses iterative recursion to loop it's code
+|#
+(define docalc (lambda (input)
+                 (cond
+                   [(test-form input "fibo")(exec-form input fibo)]
+                   [(test-form input "odds")(exec-form input dumb)]
+                   [else (writeln "a fluke/bug, please restart program.")]
+                 )))
+(define interface/2 (lambda ()
+                    (writeln ">:")
+                    (let ((input (read)))
+                      (cond
+                      [(equal? input 'quit)(writeln "program terminated.")]
+                      [(equal? input 'xyzzy)(begin (writeln "last command used:")(writeln last)(set! last "retrocognition")(interface/2))]
+                      [(equal? input 'cogder)(begin (writeln "entering emulator")(set! last "nostalgia")(interface/0))]
+                      [(equal? input 'backdoor)(writeln "never gonna give you up, never gonna let you down")]
+                      [else
+                      (begin
+                      (docalc input)
+                      (interface/2))
+                      ]
+                      )
+                    )))
+
+(writeln "SERIUSCALC program, type 'help' for more information, type 'quit' to exit the program")
+(interface/2)
