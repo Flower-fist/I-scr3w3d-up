@@ -3,7 +3,7 @@ a program for calculating mathematical series of numbers.
 title for a (pacthed) bug eats all the RAM on your PC.
 this will use a simple call-and-repeat user interface for practical reasons.
 I wil soon add several additional features
-update log;
+# update log
 1.0
    titular bug fixed;
 1.1
@@ -20,6 +20,9 @@ abilty to acess the old version,
 ("nostalgia" command)
 the ability see your last command,
 ("retrocognition")
+2.1
+   fixed incorrect form bug 
+   (that gave the user a code based error message)
 # planned updates
 debug menu, enable/disable features,
 and more functions.
