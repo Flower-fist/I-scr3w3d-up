@@ -3,7 +3,6 @@
 the following code is for the UI to run according to user input,
 (withthe exlusion of safe)
 with safe being an expiriment to protect from user error.
-(safe was not succesfull idea)
 |#
 (define odds (lambda (n)
                (add1 (* 2 n))
@@ -33,7 +32,10 @@ with safe being an expiriment to protect from user error.
 (define series (lambda (proc n)
                   (series-acc proc 1 (string->number n))
                   ))
-
+#|
+these are used by the UI to interpret
+user commands
+|#
 (define exec-form/A (lambda (command expect proc)
                     (series proc (substring (symbol->string command) (add1 (string-length expect))))
                   ))
@@ -56,13 +58,16 @@ commands ideally cicrumenting the mode variable
 |#
 (define mode "none")
 (define last "none")
-(define help"
+(define help "
 This program be can set to different calculation modes using simple commands,                                    
 the commands Fibo/Fibonacci/F set the mode to calculate fibonacci numbers,                                       
 the commands Odds/Odd numbers/O set the mode to calculate Odd numbers.                                           
 once in these modes select a number for the program to use."
 )
-;;this is the old version of the UI, archived for comparision to the current code
+#|
+this is the old version of the UI, archived for comparision to the current code,
+[modified so it can be 3mu1at3d by the current UI]
+|#
 (define interface/0 (lambda ()
                     (writeln ">:")
                     (let ((input (read)))
@@ -86,16 +91,16 @@ once in these modes select a number for the program to use."
                               )
                       (interface/0)
                       )
-                      (begin (writeln "emulator exited.") (interface/0))
+                      (begin (writeln "emulator exited.") (interface/2))
                       )
                     )))
-
 #|
 if you want add a special command then insert into interface/2,
 and if it's really complicated then aux it,
 [the term special command means a rigid function of no inputs [for trolling the user]]
 [contrasted with normal commands, which have inputs for their calculations]
-with normal commands defined by docalc
+with normal commands defined by docalc,
+using test form to interpret the prefix
 |#
 (define docalc (lambda (input)
                  (cond
@@ -105,13 +110,26 @@ with normal commands defined by docalc
                    [(test-form input "backdoor")(writeln (string-append "what sort of moron has '" (substring (symbol->string input) 9) "' as his password?"))]
                    [else (writeln "not a command")]
                  )))
+(define xyzzy (lambda ()
+                (begin
+                  (writeln "last command used:")
+                  (writeln last)
+                  (set! last "retrocognition")
+                  (interface/2)
+              )))
+(define cogder (lambda ()
+                 (begin
+                   (writeln "entering emulator")
+                   (set! last "nostalgia")
+                   (interface/0)
+               )))
 (define interface/2 (lambda ()
                     (writeln ">:")
                     (let ((input (read)))
                       (cond
                       [(equal? input 'quit)(writeln "program terminated.")]
-                      [(equal? input 'xyzzy)(begin (writeln "last command used:")(writeln last)(set! last "retrocognition")(interface/2))]
-                      [(equal? input 'cogder)(begin (writeln "entering emulator")(set! last "nostalgia")(interface/0))]
+                      [(equal? input 'xyzzy)(xyzzy)]
+                      [(equal? input 'cogder)(cogder)]
                       [(equal? input 'backdoor)(writeln "never gonna give you up, never gonna let you down")]
                       [else
                       (begin
@@ -120,6 +138,6 @@ with normal commands defined by docalc
                       ]
                       )
                     )))
-
+;;now this runs the code
 (writeln "SERIUSCALC program, type 'help' for more information, type 'quit' to exit the program")
 (interface/2)
