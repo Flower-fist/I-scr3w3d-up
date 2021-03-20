@@ -80,7 +80,7 @@ this is the old version of the UI, archived for comparision to the current code,
                                  [(equal? input 'F)(set! mode "fibo")]
                                  [(equal? input 'Odds)(set! mode "odds")]
                                  [(equal? input 'O)(set! mode "odds")]
-                                 [(equal? input 'help)(writeln help)]
+                                 [(equal? input 'help)(begin (writeln help) (interface/2))]
                                  [else (writeln "command not reconnized.")]
                                  )
                                  (cond
@@ -100,16 +100,20 @@ and if it's really complicated then aux it,
 [the term special command means a rigid function of no inputs [for trolling the user]]
 [contrasted with normal commands, which have inputs for their calculations]
 with normal commands defined by docalc,
-using test form to interpret the prefix
+using test form to interpret the prefix.
 |#
-(define docalc (lambda (input)
-                 (cond
-                   [(test-form input "fibo")(begin (exec-form/A input "fibo" fibo)(set! last "math;fibo"))]
-                   [(test-form input "odds")(begin (exec-form/A input "odds" odds)(set! last "math;odds"))]
-                   [(test-form input "even")(begin (exec-form/A input "even" even)(set! last "math;even"))]
-                   [(test-form input "backdoor")(writeln (string-append "what sort of moron has '" (substring (symbol->string input) 9) "' as his password?"))]
-                   [else (writeln "not a command")]
-                 )))
+(define help-new
+"fibo odds even retro noss"
+)
+(define help-fun (lambda (input)
+                     (cond
+                       [(test-form input "fibo") (writeln "fibonnachi function:          [math]")]
+                       [(test-form input "odds") (writeln "list all odd numbers:         [math]")]
+                       [(test-form input "even") (writeln "list all even numbers:        [math]")]
+                       [(test-form input "retro") (writeln "shows last command used:   [devtool]")]
+                       [(test-form input "noss") (writeln "emulation of old version:  [devtool]")]
+                       )
+                   ))
 (define xyzzy (lambda ()
                 (begin
                   (writeln "last command used:")
@@ -123,6 +127,15 @@ using test form to interpret the prefix
                    (set! last "nostalgia")
                    (interface/0)
                )))
+(define docalc (lambda (input)
+                 (cond
+                   [(test-form input "fibo")(begin (exec-form/A input "fibo" fibo)(set! last "math;fibo"))]
+                   [(test-form input "odds")(begin (exec-form/A input "odds" odds)(set! last "math;odds"))]
+                   [(test-form input "even")(begin (exec-form/A input "even" even)(set! last "math;even"))]
+                   [(test-form input "backdoor")(writeln (string-append "what sort of moron has '" (substring (symbol->string input) 9) "' as his password?"))]
+                   [(test-form input "help")(begin (help-fun input) (interface/2))]
+                   [else (writeln "not a command")]
+                 )))
 (define interface/2 (lambda ()
                     (writeln ">:")
                     (let ((input (read)))
@@ -131,13 +144,13 @@ using test form to interpret the prefix
                       [(equal? input 'xyzzy)(xyzzy)]
                       [(equal? input 'cogder)(cogder)]
                       [(equal? input 'backdoor)(writeln "never gonna give you up, never gonna let you down")]
+                      [(equal? input 'help)(begin (writeln help-new) (interface/2))]
                       [else
                       (begin
                       (docalc input)
                       (interface/2))
                       ]
-                      )
-                    )))
+                      ))))
 ;;now this runs the code
 (writeln "SERIUSCALC program, type 'help' for more information, type 'quit' to exit the program")
 (interface/2)
