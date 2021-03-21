@@ -102,18 +102,18 @@ and if it's really complicated then aux it,
 with normal commands defined by docalc,
 using test form to interpret the prefix.
 |#
-(define help-new
-"fibo odds even retro noss"
-)
-(define help-fun (lambda (input)
-                     (cond
-                       [(test-form input "fibo") (writeln "fibonnachi function:          [math]")]
-                       [(test-form input "odds") (writeln "list all odd numbers:         [math]")]
-                       [(test-form input "even") (writeln "list all even numbers:        [math]")]
-                       [(test-form input "retro") (writeln "shows last command used:   [devtool]")]
-                       [(test-form input "noss") (writeln "emulation of old version:  [devtool]")]
-                       )
+
+(define help-fun (lambda ()
+                   (begin
+                   (writeln "purpose: fibonnachi function|type:                                                                                      [math]")
+                   (writeln "purpose: lists odd numbers|type:                                                                                        [math]")
+                   (writeln "purpose: lists even numbers|type:                                                                                       [math]")
+                   (writeln "purpose: shows last command used|type:                                                                               [devtool]")
+                   (writeln "purpose: emulation of old version|type:                                                                              [devtool]")
+                   (interface/2)
+                   )
                    ))
+
 (define xyzzy (lambda ()
                 (begin
                   (writeln "last command used:")
@@ -133,7 +133,6 @@ using test form to interpret the prefix.
                    [(test-form input "odds")(begin (exec-form/A input "odds" odds)(set! last "math;odds"))]
                    [(test-form input "even")(begin (exec-form/A input "even" even)(set! last "math;even"))]
                    [(test-form input "backdoor")(writeln (string-append "what sort of moron has '" (substring (symbol->string input) 9) "' as his password?"))]
-                   [(test-form input "help")(begin (help-fun input) (interface/2))]
                    [else (writeln "not a command")]
                  )))
 (define interface/2 (lambda ()
@@ -144,7 +143,7 @@ using test form to interpret the prefix.
                       [(equal? input 'xyzzy)(xyzzy)]
                       [(equal? input 'cogder)(cogder)]
                       [(equal? input 'backdoor)(writeln "never gonna give you up, never gonna let you down")]
-                      [(equal? input 'help)(begin (writeln help-new) (interface/2))]
+                      [(equal? input 'help)(help-fun)]
                       [else
                       (begin
                       (docalc input)
