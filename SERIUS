@@ -1,8 +1,7 @@
 #lang racket
 #|
 the following code is for the UI to run according to user input,
-(withthe exlusion of safe)
-with safe being an expiriment to protect from user error.
+in order to be simple, these are simple mathematical seires.
 |#
 (define odds (lambda (n)
                (add1 (* 2 n))
@@ -10,6 +9,9 @@ with safe being an expiriment to protect from user error.
 (define even (lambda (n)
                (* 2 n)
                ))
+(define bin (lambda (a n)
+              (expt a n)
+              ))
 (define fibo-acc (lambda (acc1 acc2 n)
                    (if
                     (equal? n 0)
@@ -21,6 +23,7 @@ with safe being an expiriment to protect from user error.
                 (fibo-acc 0 1 n)
                 ))
 
+;;these functions are used to print vaules from the above procedures
 (define series-acc (lambda(proc acc n)
                  (cond
                  [(equal? acc n) (writeln (number->string (proc acc)))]
@@ -30,15 +33,45 @@ with safe being an expiriment to protect from user error.
                  ]
                  )))
 (define series (lambda (proc n)
-                  (series-acc proc 1 (string->number n))
+                  (if
+                   (number? n)
+                   (series-acc proc 1 n)
+                   (series-acc proc 1 (string->number n))
+                  )
                   ))
 #|
-these are used by the UI to interpret
-user commands
+these are used by the current
+UI to interpret user commands
 |#
 (define exec-form/A (lambda (command expect proc)
                     (series proc (substring (symbol->string command) (add1 (string-length expect))))
                   ))
+(define exec-form/B-acc (lambda (command expect proc acc)
+                      (let ((x
+                             (string->number
+                              (substring
+                               (symbol->string command) (add1 (string-length expect)) (+ 3 (string-length expect))
+                               )
+                              )
+                            )
+                            (n
+                             (substring
+                               (symbol->string command)
+                               (+ 3 (string-length expect))
+                             ))
+                            )
+                      (cond
+                        [(equal? acc n) (writeln (number->string (proc x acc)))]
+                        [else
+                          (begin
+                          (writeln (number->string (proc x acc)))(exec-form/B-acc command expect proc (add1 acc)))
+                        ]
+                      )
+                      )
+                    ))
+(define exec-form/B (lambda (command expect proc)
+                      (exec-form/B-acc command expect proc 1)
+                      ))
 (define test-form (lambda (command expect)
                     (if
                     (not (or (number? command)(string? command)))
@@ -69,7 +102,7 @@ this is the old version of the UI, archived for comparision to the current code,
 [modified so it can be 3mu1at3d by the current UI]
 |#
 (define interface/0 (lambda ()
-                    (writeln ">:")
+                    (writeln ">:sys-old >:")
                     (let ((input (read)))
                       (if (not (equal? input 'quit))
                       (begin
@@ -103,17 +136,23 @@ with normal commands defined by docalc,
 using test form to interpret the prefix.
 |#
 
+;;displays the (multi-line) help-text to the usr
 (define help-fun (lambda ()
                    (begin
-                   (writeln "purpose: fibonnachi function|type:                                                                                      [math]")
-                   (writeln "purpose: lists odd numbers|type:                                                                                        [math]")
-                   (writeln "purpose: lists even numbers|type:                                                                                       [math]")
-                   (writeln "purpose: shows last command used|type:                                                                               [devtool]")
-                   (writeln "purpose: emulation of old version|type:                                                                              [devtool]")
+                   (writeln "fibo |purpose:      fibonnachi function|type:                                       [math]")
+                   (writeln "odds |purpose:        lists odd numbers|type:                                       [math]")
+                   (writeln "even |purpose:       lists even numbers|type:                                       [math]")
+                   (writeln "retro|purpose: shows last command used| type:                                    [devtool]")
+                   (writeln "noss |purpose: emulation of old version|type:                                    [devtool]")
                    (interface/2)
                    )
                    ))
-
+(define troll (lambda (input)
+                (writeln
+                 (string-append "what sort of moron has '"
+                 (substring (symbol->string input) 9)
+                                "' as his password?"))
+                ))
 (define xyzzy (lambda ()
                 (begin
                   (writeln "last command used:")
@@ -132,11 +171,13 @@ using test form to interpret the prefix.
                    [(test-form input "fibo")(begin (exec-form/A input "fibo" fibo)(set! last "math;fibo"))]
                    [(test-form input "odds")(begin (exec-form/A input "odds" odds)(set! last "math;odds"))]
                    [(test-form input "even")(begin (exec-form/A input "even" even)(set! last "math;even"))]
-                   [(test-form input "backdoor")(writeln (string-append "what sort of moron has '" (substring (symbol->string input) 9) "' as his password?"))]
+                   [(test-form input "expn") (begin (exec-form/B input "expn" bin) (set! last "math;bins"))]
+                   [(test-form input "backdoor")(troll input)]
                    [else (writeln "not a command")]
-                 )))
+                 )
+                 ))
 (define interface/2 (lambda ()
-                    (writeln ">:")
+                    (writeln ">:sys-new >:")
                     (let ((input (read)))
                       (cond
                       [(equal? input 'quit)(writeln "program terminated.")]
