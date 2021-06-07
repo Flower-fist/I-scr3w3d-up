@@ -23,6 +23,6 @@ the ability see your last command,
 2.1
    fixed incorrect form bug 
    (that gave the user a code based error message)
-# planned updates
-debug menu, enable/disable features,
-and more functions.
+# notice
+project terminated
+all updates have been cancelled
